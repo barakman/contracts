@@ -93,7 +93,7 @@ contract BancorFormula is IBancorFormula, SafeMath {
             return _reserveBalance;
 
         var resD = uint256(1) << PRECISION;
-        var resN = powerRoundDown(_supply, baseN, 100, _reserveRatio);
+        var resN = power(_supply, baseN, 100, _reserveRatio);
         temp1 = safeMul(_reserveBalance, resN);
         temp2 = safeMul(_reserveBalance, resD);
 
@@ -164,7 +164,7 @@ contract BancorFormula is IBancorFormula, SafeMath {
         assert(_numerator & 0xffffffff00000000000000000000000000000000000000000000000000000000 == 0);
         assert(_denominator & 0xffffffff00000000000000000000000000000000000000000000000000000000 == 0);
 
-        return fixedLoge(_numerator << PRECISION) - fixedLoge(_denominator << PRECISION);
+        return fixedLoge((_numerator << PRECISION) / _denominator);
     }
 
     /**
