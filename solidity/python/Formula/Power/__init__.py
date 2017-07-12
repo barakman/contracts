@@ -114,11 +114,10 @@ def fixedExp(_x, PRECISION):
     This method is is visible for testcases, but not meant for direct use. 
 '''
 def fixedExpUnsafe(_x, PRECISION):
+    xi = _x;
+    res = 0xde1bc4d19efcac82445da75b00000000 << _precision;
 
-    res = 0xde1bc4d19efcac82445da75b00000000 << PRECISION
-
-    xi = (xi * _x) >> PRECISION
-    res += xi * 0xde1bc4d19efcac82445da75b00000000
+    res += xi * 0xde1bc4d19efcac82445da75b00000000;
     xi = (xi * _x) >> PRECISION
     res += xi * 0x6f0de268cf7e5641222ed3ad80000000
     xi = (xi * _x) >> PRECISION
