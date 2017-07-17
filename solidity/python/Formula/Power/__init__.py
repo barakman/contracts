@@ -15,20 +15,20 @@ MAX_FIXED_EXP_32 = 0x386bfdba29;
     Of course, we should later assert that the value passed to fixedExpUnsafe is not larger than MAX_FIXED_EXP(precision).
     Due to this assertion (made in function fixedExp), functions calculateBestPrecision and fixedExp are tightly coupled.
     Note that the outcome of this function only affects the accuracy of the computation of "base ^ exp".
-    Therefore, there is no need to assert that no intermediate result exceeds 256 bits (nor in this function, neither in any of the functions down the calling tree).
+    Therefore, we do not need to assert that no intermediate result exceeds 256 bits (nor in this function, neither in any of the functions down the calling tree).
 '''
 def calculateBestPrecision(_baseN, _baseD, _expN, _expD):
     maxExp = MAX_FIXED_EXP_32;
-    maxVal = _expN * lnUpperBound(_baseN,_baseD);
-    for precision in range(32, 64, 2):
+    maxVal = lnUpperBound32(_baseN,_baseD) * _expN;
+    for precision in range(0, 32, 2):
         if (maxExp < (maxVal << precision) / _expD):
             break;
         maxExp = (maxExp * 0xeb5ec5975959c565) >> (64-2);
     else:
         return 64-2;
-    if (precision == 32):
+    if (precision == 0):
         return 32;
-    return precision-2;
+    return precision+32-2;
 
 '''
     @dev calculates (_baseN / _baseD) ^ (_expN / _expD)
@@ -75,18 +75,18 @@ def ln(_numerator, _denominator, _precision):
     We therefore cover these cases (and a few more) manually.
     Complexity is O(log(input bit-length)).
 '''
-def lnUpperBound(_baseN, _baseD):
+def lnUpperBound32(_baseN, _baseD):
     assert(_baseN > _baseD);
 
     scaledBaseN = _baseN * 100000;
     if (scaledBaseN <= _baseD *  271828): # _baseN / _baseD < e^1 (floorLog2 will return 0 if _baseN / _baseD < 2)
-        return 1;
+        return 1 << 32;
     if (scaledBaseN <= _baseD *  738905): # _baseN / _baseD < e^2 (floorLog2 will return 1 if _baseN / _baseD < 4)
-        return 2;
+        return 2 << 32;
     if (scaledBaseN <= _baseD * 2008553): # _baseN / _baseD < e^3 (floorLog2 will return 2 if _baseN / _baseD < 8)
-        return 3;
+        return 3 << 32;
 
-    return ((floorLog2((_baseN - 1) / _baseD) + 1) * 0xb17217f7d1cf78 + (1 << 56) - 1) >> 56;
+    return (floorLog2((_baseN - 1) / _baseD) + 1) * 0xb17217f8;
 
 '''
     input range: 
