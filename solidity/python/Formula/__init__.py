@@ -1,6 +1,5 @@
 from Power import power
 from Power import calculateBestPrecision
-from Power import ONE
 
 
 '''
@@ -17,19 +16,19 @@ from Power import ONE
     @return purchase return amount
 '''
 def calculatePurchaseReturn(_supply, _reserveBalance, _reserveRatio, _depositAmount):
-    # validate input
+    #  validate input
     assert(_supply != 0 and _reserveBalance != 0 and _reserveRatio > 0 and _reserveRatio <= 100);
 
-    # special case for 0 deposit amount
+    #  special case for 0 deposit amount
     if (_depositAmount == 0):
         return 0;
 
     baseN = safeAdd(_depositAmount, _reserveBalance);
 
-    # special case if the CRR = 100
+    #  special case if the CRR = 100
     if (_reserveRatio == 100):
         temp = safeMul(_supply, baseN) / _reserveBalance;
-        return safeSub(temp, _supply); 
+        return safeSub(temp, _supply);
 
     precision = calculateBestPrecision(baseN, _reserveBalance, _reserveRatio, 100);
     resN = power(baseN, _reserveBalance, _reserveRatio, 100, precision);
@@ -50,29 +49,29 @@ def calculatePurchaseReturn(_supply, _reserveBalance, _reserveRatio, _depositAmo
     @return sale return amount
 '''
 def calculateSaleReturn(_supply, _reserveBalance, _reserveRatio, _sellAmount):
-    # validate input
+    #  validate input
     assert(_supply != 0 and _reserveBalance != 0 and _reserveRatio > 0 and _reserveRatio <= 100 and _sellAmount <= _supply);
 
-    # special case for 0 sell amount
+    #  special case for 0 sell amount
     if (_sellAmount == 0):
         return 0;
 
     baseD = safeSub(_supply, _sellAmount);
 
-    # special case if the CRR = 100
+    #  special case if the CRR = 100
     if (_reserveRatio == 100):
         temp1 = safeMul(_reserveBalance, _supply);
         temp2 = safeMul(_reserveBalance, baseD);
         return safeSub(temp1, temp2) / _supply;
 
-    # special case for selling the entire supply
+    #  special case for selling the entire supply
     if (_sellAmount == _supply):
         return _reserveBalance;
 
     precision = calculateBestPrecision(_supply, baseD, 100, _reserveRatio);
     resN = power(_supply, baseD, 100, _reserveRatio, precision);
     temp1 = safeMul(_reserveBalance, resN);
-    temp2 = safeMul(_reserveBalance, ONE << precision);
+    temp2 = safeMul(_reserveBalance, 1 << precision);
     return safeSub(temp1, temp2) / resN;
 
 
